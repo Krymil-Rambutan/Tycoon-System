@@ -1,0 +1,21 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RequestPurchase = ReplicatedStorage.TycoonEvents.RequestPurchase
+
+local pad = script.Parent
+local prompt = pad:WaitForChild("ProximityPrompt")
+
+-- CONFIGURATION
+local ITEM_NAME = "SolarPanel_V1" -- Name of the part to unlock
+local COST = 50
+local TARGET_PART = workspace:FindFirstChild(ITEM_NAME) -- Ensure this part exists!
+
+-- Set up the UI text
+prompt.ObjectText = ITEM_NAME
+prompt.ActionText = "Buy for " .. COST .. " Electric Units"
+
+prompt.Triggered:Connect(function(player)
+	if TARGET_PART then
+		-- Tell the server we want to buy this
+		RequestPurchase:FireServer(COST, TARGET_PART, pad)
+	end
+end)
