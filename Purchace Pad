@@ -1,16 +1,16 @@
-local yieldPerTick = 10 
-local tickRate = 1
+local prompt = script.Parent:WaitForChild("ProximityPrompt")
 
-while true do
-    task.wait(tickRate)
+local ITEM_NAME = "SolarPanel_V1"
+local COST = 50
+
+-- Updated UI text
+prompt.ObjectText = ITEM_NAME
+prompt.ActionText = "Buy for $" .. COST .. " Money" -- Refreshed text
+
+prompt.Triggered:Connect(function(player)
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local RequestPurchase = ReplicatedStorage.TycoonEvents.RequestPurchase
     
-    for _, player in pairs(game.Players:GetPlayers()) do
-        local stats = player:FindFirstChild("leaderstats")
-        if stats then
-            local moneyStat = stats:FindFirstChild("Money")
-            if moneyStat then
-                moneyStat.Value += yieldPerTick
-            end
-        end
-    end
-end
+    -- Request the purchase from the server
+    RequestPurchase:FireServer(COST, workspace:FindFirstChild(ITEM_NAME), script.Parent)
+end)
