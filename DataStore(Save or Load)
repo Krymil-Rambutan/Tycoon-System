@@ -1,0 +1,22 @@
+local DataStoreService = game:GetService("DataStoreService")
+local unitData = DataStoreService:GetDataStore("ElectricUnits_v1")
+
+game.Players.PlayerAdded:Connect(function(player)
+    local leaderstats = player:WaitForChild("leaderstats")
+    local currency = leaderstats:WaitForChild("Electric Units")
+
+    -- Load Data
+    local success, savedUnits = pcall(function()
+        return unitData:GetAsync(player.UserId)
+    end)
+
+    if success and savedUnits then
+        currency.Value = savedUnits
+    end
+end)
+
+game.Players.PlayerRemoving:Connect(function(player)
+    local success, err = pcall(function()
+        unitData:SetAsync(player.UserId, player.leaderstats["Electric Units"].Value)
+    end)
+end)
