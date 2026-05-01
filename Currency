@@ -1,34 +1,29 @@
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RequestPurchase = ReplicatedStorage.TycoonEvents.RequestPurchase
+local DataStoreService = game:GetService("DataStoreService")
+local moneyData = DataStoreService:GetDataStore("PlayerMoney_v1")
 
--- 1. Create Leaderstats (Electric Units)
-Players.PlayerAdded:Connect(function(player)
-	local leaderstats = Instance.new("Folder")
-	leaderstats.Name = "leaderstats"
-	leaderstats.Parent = player
+game.Players.PlayerAdded:Connect(function(player)
+    local leaderstats = Instance.new("Folder")
+    leaderstats.Name = "leaderstats"
+    leaderstats.Parent = player
 
-	local electricUnits = Instance.new("IntValue")
-	electricUnits.Name = "Electric Units"
-	electricUnits.Value = 0 -- Starting Balance
-	electricUnits.Parent = leaderstats
+    local money = Instance.new("IntValue")
+    money.Name = "Money"
+    money.Value = 0
+    money.Parent = leaderstats
+
+    -- Load Data
+    local success, savedMoney = pcall(function()
+        return moneyData:GetAsync(player.UserId)
+    end)
+
+    if success and savedMoney then
+        money.Value = savedMoney
+    end
 end)
 
--- 2. Handle Purchases
-RequestPurchase.OnServerEvent:Connect(function(player, cost, itemToUnlock, padObject)
-	local currency = player.leaderstats["Electric Units"]
-	
-	if currency.Value >= cost then
-		currency.Value -= cost
-		
-		-- Logic to show the item
-		itemToUnlock.Transparency = 0
-		itemToUnlock.CanCollide = true
-		
-		-- Clean up the purchase pad
-		padObject:Destroy()
-		print(player.Name .. " bought " .. itemToUnlock.Name)
-	else
-		print("Insufficient Electric Units!")
-	end
+game.Players.PlayerRemoving:Connect(function(player)
+    local success, err = pcall(function()
+        -- Reference the new "Money" object
+        moneyData:SetAsync(player.UserId, player.leaderstats.Money.Value)
+    end)
 end)
