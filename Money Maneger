@@ -1,0 +1,60 @@
+-- Money Manager Script
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RequestPurchase = ReplicatedStorage:WaitForChild("TycoonEvents").RequestPurchase
+
+-- 1. FUNCTION: Increase Money (The Generator Logic)
+-- You can call this function from your Droppers or Generators
+local function IncreaseMoney(player, amount)
+	local leaderstats = player:FindFirstChild("leaderstats")
+	if leaderstats then
+		local money = leaderstats:FindFirstChild("Money")
+		if money then
+			money.Value += amount
+		end
+	end
+end
+
+-- 2. EVENT: Reduction Logic (The Purchase Logic)
+RequestPurchase.OnServerEvent:Connect(function(player, cost, itemToUnlock, padObject)
+	local leaderstats = player:FindFirstChild("leaderstats")
+	if not leaderstats then return end
+	
+	local money = leaderstats:FindFirstChild("Money")
+	
+	-- Check if player has enough money
+	if money and money.Value >= cost then
+		-- REDUCE MONEY
+		money.Value -= cost
+		
+		-- UNLOCK ITEM
+		if itemToUnlock:IsA("Model") then
+			for _, part in pairs(itemToUnlock:GetDescendants()) do
+				if part:IsA("BasePart") then
+					part.Transparency = 0
+					part.CanCollide = true
+				end
+			end
+		elseif itemToUnlock:IsA("BasePart") then
+			itemToUnlock.Transparency = 0
+			itemToUnlock.CanCollide = true
+		end
+		
+		-- Destroy the pad so it can't be bought again
+		if padObject then padObject:Destroy() end
+		
+		print(player.Name .. " successfully bought " .. itemToUnlock.Name)
+	else
+		-- Optional: Tell the client they are too poor
+		print(player.Name .. " has insufficient funds!")
+	end
+end)
+
+-- Example: Giving money every 5 seconds for testing
+task.spawn(function()
+	while true do
+		task.wait(5)
+		for _, player in pairs(game.Players:GetPlayers()) do
+			IncreaseMoney(player, 25) -- Passive income
+		end
+	end
+end)
