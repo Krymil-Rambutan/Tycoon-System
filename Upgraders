@@ -1,0 +1,21 @@
+local upgrader = script.Parent
+local multiplier = 2 -- Double the value
+
+upgrader.Touched:Connect(function(hit)
+    -- Check if the object touching is a currency drop
+    if hit:FindFirstChild("IsUnit") then
+        local valueAttr = hit:GetAttribute("Value")
+        if valueAttr and not hit:FindFirstChild("Upgraded") then
+            -- Multiply the value
+            hit:SetAttribute("Value", valueAttr * multiplier)
+            
+            -- Visual indicator
+            hit.Color = Color3.fromRGB(255, 255, 0) -- Turn Yellow (Electric)
+            
+            -- Add a tag so it can't be upgraded by the same part twice
+            local tag = Instance.new("BoolValue")
+            tag.Name = "Upgraded"
+            tag.Parent = hit
+        end
+    end
+end)
