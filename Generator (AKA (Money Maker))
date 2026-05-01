@@ -1,20 +1,16 @@
-local generatorPart = script.Parent
-local yieldPerTick = 5 -- How many units given
-local tickRate = 1     -- Seconds between pulses
+local yieldPerTick = 10 
+local tickRate = 1
 
--- Complex Tycoon logic: Only give money if the owner is nearby
 while true do
-	task.wait(tickRate)
-	
-	-- Visual Pulse Effect
-	generatorPart.Color = Color3.fromRGB(0, 255, 255)
-	task.delay(0.2, function() generatorPart.Color = Color3.fromRGB(0, 100, 100) end)
-	
-	-- Award currency to all players (Or modify to find "Owner")
-	for _, player in pairs(game.Players:GetPlayers()) do
-		local stats = player:FindFirstChild("leaderstats")
-		if stats then
-			stats["Electric Units"].Value += yieldPerTick
-		end
-	end
+    task.wait(tickRate)
+    
+    for _, player in pairs(game.Players:GetPlayers()) do
+        local stats = player:FindFirstChild("leaderstats")
+        if stats then
+            local moneyStat = stats:FindFirstChild("Money")
+            if moneyStat then
+                moneyStat.Value += yieldPerTick
+            end
+        end
+    end
 end
