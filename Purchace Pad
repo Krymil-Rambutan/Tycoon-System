@@ -1,16 +1,22 @@
-local prompt = script.Parent:WaitForChild("ProximityPrompt")
+-- Purchase Pad Script
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RequestPurchase = ReplicatedStorage:WaitForChild("TycoonEvents"):WaitForChild("RequestPurchase")
 
-local ITEM_NAME = "SolarPanel_V1"
-local COST = 50
+local pad = script.Parent
+local prompt = pad:WaitForChild("ProximityPrompt")
 
--- Updated UI text
+-- CONFIGURATION
+local ITEM_NAME = "BasicGenerator" -- The name of the object to unlock
+local COST = 100
+-- Reference the object this pad unlocks (it should be invisible in Workspace somewhere)
+local TARGET_OBJECT = workspace:FindFirstChild(ITEM_NAME) 
+
 prompt.ObjectText = ITEM_NAME
-prompt.ActionText = "Buy for $" .. COST .. " Money" -- Refreshed text
+prompt.ActionText = "Purchase for $" .. COST
 
 prompt.Triggered:Connect(function(player)
-    local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local RequestPurchase = ReplicatedStorage.TycoonEvents.RequestPurchase
-    
-    -- Request the purchase from the server
-    RequestPurchase:FireServer(COST, workspace:FindFirstChild(ITEM_NAME), script.Parent)
+	if TARGET_OBJECT then
+		-- Send the request to the server script
+		RequestPurchase:FireServer(COST, TARGET_OBJECT, pad)
+	end
 end)
